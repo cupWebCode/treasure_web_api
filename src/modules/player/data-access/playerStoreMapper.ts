@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import * as _ from "lodash";
 import { PlayerFormDto } from "../dto/playerFormDto";
 import { StorageType } from "src/common/types/storage.type";
 import { boardMap as gameData } from "src/common/boardMap";
@@ -20,6 +19,7 @@ export class PlayerStoreMapper {
   }
 
   async getScore(): Promise<Array<ScoreType>> {
+    const maxTopScore = 10;
     const data: ScoreType[] = [];
     for (var i in this.storage) {
       data.push({
@@ -27,8 +27,11 @@ export class PlayerStoreMapper {
         score: this.storage[i].score
       });
     }
-
-    return Promise.resolve(data);
+    const dataSorted = data.sort((a, b) => {
+      if (a.score < b.score) return 1;
+      if (a.score > b.score) return -1;
+    })
+    return Promise.resolve(dataSorted.slice(0, maxTopScore));
   }
 
   async createNewPlayer(payload: Partial<PlayerFormDto>): Promise<PlayerFormDto> {
